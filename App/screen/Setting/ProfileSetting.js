@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, TextInput, Image, TouchableOpacity, Pressable }
 import React, { useState, useEffect } from 'react'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { getAuth, updateProfile } from 'firebase/auth';
-import { getFirestore, updateDoc, doc } from "firebase/firestore";
+import { getFirestore, updateDoc, doc } from "firebase/firestore/lite";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Settings = ({ navigation }) => {

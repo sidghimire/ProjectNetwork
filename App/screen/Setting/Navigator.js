@@ -20,7 +20,7 @@ const Navigator = ({ navigation }) => {
           return (<View style={{ padding: 10, backgroundColor: '#fff', flexDirection: 'row', borderBottomColor: '#efefef', borderBottomWidth: 1 }}>
             <Ionicons name="arrow-back-outline" onPress={() => navigation.goBack()} size={28} color="black" />
             <View>
-              <Text style={{ fontSize: 22, marginLeft: 22 }}>Settings</Text>
+              <Text style={{ color: '#000', fontSize: 22, marginLeft: 22 }}>Settings</Text>
             </View>
           </View>)
         }
@@ -30,7 +30,7 @@ const Navigator = ({ navigation }) => {
           return (<View style={{ padding: 10, backgroundColor: '#fff', flexDirection: 'row', borderBottomColor: '#efefef', borderBottomWidth: 1 }}>
             <Ionicons name="arrow-back-outline" onPress={() => navigation.goBack()} size={28} color="black" />
             <View>
-              <Text style={{ fontSize: 22, marginLeft: 22 }}>Profile Setting</Text>
+              <Text style={{ color: '#000', fontSize: 22, marginLeft: 22 }}>Profile Setting</Text>
             </View>
           </View>)
         }

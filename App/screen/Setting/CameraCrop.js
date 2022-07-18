@@ -7,7 +7,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 const CameraCrop = ({ route, navigation }) => {
   const cropViewRef = useRef(null)
   const saveImage = () => {
-    cropViewRef.current.saveImage(true, 100)
+    cropViewRef.current.saveImage(true, 50)
   }
   const rotateImage=()=>{
     cropViewRef.current.rotateImage(true)

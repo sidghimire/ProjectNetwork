@@ -16,7 +16,7 @@ const CameraFilter = ({ route, navigation }) => {
     const filename = uri.substring(uri.lastIndexOf('/') + 1);
     const storageRef = ref(storage, 'profileImages/' + filename)
     
-    const resizedImage = result.uri;
+    const resizedImage = uri;
     const response = await fetch(resizedImage)
     const blob = await response.blob()
 

@@ -28,7 +28,7 @@ const Dashboard = ({ navigation }) => {
 
             <View style={{ borderTopLeftRadius: 50, borderTopRightRadius: 50, backgroundColor: "#fff", position: 'relative', top: -150 }}>
                 <View style={{ display: 'flex', flexDirection: 'row', margin: 'auto' }}>
-                    <Text style={{ textAlign: 'center', padding: 10, margin: 10, width: "90%", marginRight: 'auto', fontSize: 20, fontWeight: '700', borderBottomColor: '#cfcfcf', borderBottomWidth: 1 }}>@ {username}</Text>
+                    <Text style={{  color: '#000',textAlign: 'center', padding: 10, margin: 10, width: "90%", marginRight: 'auto', fontSize: 20, fontWeight: '700', borderBottomColor: '#cfcfcf', borderBottomWidth: 1 }}>@ {username}</Text>
                 </View>
                 <View style={{ display: 'flex', flexDirection: 'row', padding: 10 }}>
                     <View style={{ flex: 1, padding: 20, margin: 10, backgroundColor: "#000", borderRadius: 5, flexDirection: 'column' }}>
