@@ -164,7 +164,7 @@ const Dashboard = ({ navigation }) => {
 
           <View>
             {feedImage != null ?
-              <Image source={{ uri: feedImage }} style={{ width: "100%", height: 450, resizeMode: 'contain', marginRight: 'auto' }} />
+              <Image source={{ uri: feedImage }} style={{ width: "100%", height: 500, resizeMode: 'contain', marginRight: 'auto' }} />
               : <></>
             }
           </View>
@@ -261,7 +261,7 @@ const Dashboard = ({ navigation }) => {
 const styles = StyleSheet.create({
   item: {
     display: 'flex',
-    flexDirection: 'row',
+    flexDirection: 'column',
     marginBottom: 20
   },
   title: {

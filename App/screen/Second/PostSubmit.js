@@ -51,7 +51,10 @@ const PostSubmit = ({ route, navigation }) => {
                     displayName: auth.currentUser.displayName,
                     feedImage: url
                 }).then((val) => {
-                    console.log(val.id)
+                    setLoading(false)
+
+                    navigation.navigate("DashboardBottom")
+
                 });
 
 
@@ -59,8 +62,6 @@ const PostSubmit = ({ route, navigation }) => {
         })
 
         setStatus("")
-        setLoading(false)
-        navigation.navigate("DashboardBottom")
 
     }
     return (
