@@ -1,9 +1,10 @@
-import { View, Text, StyleSheet, ActivityIndicator, RefreshControl, TextInput, Image, Modal, StatusBar, TouchableOpacity, FlatList, SafeAreaView } from 'react-native'
+import { View, Text, StyleSheet, ActivityIndicator, RefreshControl, TextInput, Image, StatusBar, TouchableOpacity, FlatList, SafeAreaView } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import { signOut, getAuth, updateProfile } from 'firebase/auth';
 import { doc, getDocs, query, orderBy, getFirestore, updateDoc, addDoc, collection } from "firebase/firestore/lite";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { launchImageLibrary } from 'react-native-image-picker';
 
 const wait = (timeout) => {
   return new Promise(resolve => setTimeout(resolve, timeout));
@@ -11,6 +12,10 @@ const wait = (timeout) => {
 
 
 const Dashboard = ({ navigation }) => {
+  const getGalleryImage = async () => {
+    const result = await launchImageLibrary();
+    navigation.navigate('AddImageFeed', { uri: result.assets[0].uri })
+  }
   const [refreshing, setRefreshing] = React.useState(false);
   const [loading, setLoading] = useState(false)
 
@@ -26,7 +31,6 @@ const Dashboard = ({ navigation }) => {
 
   const [DATA, setDATA] = useState([{ id: 'POST' }])
 
-  const [modalVisible, setModalVisible] = useState(false);
   const [userName, setUserName] = useState(auth.currentUser.displayName);
   const [profileImage, setProfileImage] = useState(auth.currentUser.photoURL);
   const [displayName, setDisplayName] = useState(auth.currentUser.displayName);
@@ -52,8 +56,8 @@ const Dashboard = ({ navigation }) => {
       uid: auth.currentUser.uid,
       date: Date.now(),
       profileImage: auth.currentUser.photoURL,
-      displayName: auth.currentUser.displayName,
-      fullName: displayName
+      fullName: displayName,
+      displayName: auth.currentUser.displayName
 
     }).then((val) => {
       console.log(val.id)
@@ -80,7 +84,8 @@ const Dashboard = ({ navigation }) => {
         profileImage: data.profileImage,
         date: data.date,
         fullName: data.fullName,
-        uid: data.uid
+        uid: data.uid,
+        feedImage: data.feedImage
       }
 
 
@@ -101,33 +106,20 @@ const Dashboard = ({ navigation }) => {
       setProfileImage(auth.currentUser.photoURL)
 
     });
-    if (auth.currentUser.displayName == null) {
-      setModalVisible(true);
-    }
+
     return unsubscribe;
   }, [navigation]);
-  const changeUsername = () => {
-    updateProfile(auth.currentUser, {
-      displayName: userName
 
-    }).then(() => {
-      setModalVisible(false);
-    })
-    createNewDB(auth.currentUser.uid)
-  }
   const createNewDB = async (uid) => {
     await updateDoc(doc(db, "User", uid), {
       username: userName,
     });
   }
-  const checkIfAllowed = () => {
-    if (auth.currentUser.displayName != userName) {
-      changeUsername();
-    }
-  }
 
-  const Item = ({ uid, id, username, description, profileImage, date, fullName }) => {
+
+  const Item = ({ uid, id, username, description, profileImage, date, fullName, feedImage }) => {
     let diff = Date.now() - date;
+
     let postfix = "sec"
     let time = parseInt(diff / 1000)
     if (time > 60 && time < 3600) {
@@ -149,32 +141,40 @@ const Dashboard = ({ navigation }) => {
     return (
 
       <View style={styles.item}>
-        <TouchableOpacity onPress={() => navigation.navigate("ProfileVisit", { userID: uid })}>
-          <Image style={styles.feedImage} source={{ uri: profileImage }} />
-        </TouchableOpacity>
-        <View style={{ paddingHorizontal: 10, display: 'flex', flexDirection: 'column', width: "100%" }}>
-          <View style={{ display: 'flex', flexDirection: 'row' }}>
-            <TouchableOpacity onPress={() => navigation.navigate("ProfileVisit", { userID: uid })}>
-              <Text style={{ fontSize: 16, color: 'black', fontWeight: '800' }}>{fullName}</Text>
-            </TouchableOpacity>
-            <Text style={{ fontSize: 14, color: '#404040', marginLeft: 4 }}>@{username}</Text>
-            <Text style={{ fontSize: 14, color: '#808080', marginLeft: "auto", marginRight: 50 }}>{time} {postfix}</Text>
+
+        <View style={{ paddingHorizontal: 0, display: 'flex', flexDirection: 'column', width: "100%" }}>
+          <TouchableOpacity onPress={() => navigation.navigate("ProfileVisit", { userID: uid })} style={{ display: 'flex', flexDirection: 'row', paddingHorizontal: 20, paddingBottom: 10 }}>
+            {
+              profileImage != null ?
+                <Image source={{ uri: profileImage }} style={styles.feedImage} />
+                :
+                <Image source={require("../../asset/local/Blank.png")} style={[styles.feedImage]} />
+            }
+            <View style={{ display: 'flex', flexDirection: 'column', paddingLeft: 15 }}>
+              <Text style={{ fontSize: 18, color: 'black', fontWeight: '800' }}>{fullName}</Text>
+              <Text style={{ fontSize: 14, color: '#404040', marginTop: 5 }}>@{username}</Text>
+            </View>
+            <View style={{ display: 'flex', flexDirection: 'column', marginLeft: 'auto', marginRight: 20 }}>
+              <Text style={{ fontSize: 14, color: '#808080' }}>{time} {postfix}</Text>
+              <TouchableOpacity style={styles.postButtons}>
+                <Ionicons name="heart-outline" size={25} color="black" />
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+
+          <View>
+            {feedImage != null ?
+              <Image source={{ uri: feedImage }} style={{ width: "100%", height: 450, resizeMode: 'contain', marginRight: 'auto' }} />
+              : <></>
+            }
           </View>
-          <View style={{ width: '94%', paddingLeft: 10 }}>
-            <Text style={{ textAlign: 'justify', fontSize: 15 }}>
+          <View style={{ width: '100%', paddingLeft: 25, paddingRight: 35, paddingTop: 15 }}>
+            <Text style={{ textAlign: 'justify', fontSize: 15, color: '#404040' }}>
               {description}
             </Text>
           </View>
-          <View style={{ display: 'flex', flexDirection: 'row', width: "100%" }}>
-            <View style={{ display: 'flex', flexDirection: 'row', paddingVertical: 5, paddingRight: 20 }}>
-              <View style={{ display: 'flex', flexDirection: 'row' }}>
-                <TouchableOpacity style={styles.postButtons}>
-                  <Ionicons name="heart-outline" size={25} color="black" />
-                </TouchableOpacity>
-                <Text style={{ margin: 5, marginTop: 7, fontSize: 16 }}></Text>
-              </View>
-            </View>
-            <View style={{ display: 'flex', flexDirection: 'row', paddingVertical: 5, paddingRight: 20, marginLeft: 'auto', marginRight: 20 }}>
+          <View style={{ display: 'flex', flexDirection: 'row', width: "100%",paddingHorizontal:10 }}>
+            <View style={{ display: 'flex', flexDirection: 'row', paddingVertical: 5, paddingRight: 20, marginRight: 'auto' }}>
               <TouchableOpacity style={[styles.postButtons]}>
                 <Ionicons name="earth-outline" size={25} color="black" />
               </TouchableOpacity>
@@ -192,7 +192,12 @@ const Dashboard = ({ navigation }) => {
       return (
         <View style={{ paddingBottom: 10, marginBottom: 20 }}>
           <View style={{ display: 'flex', flexDirection: 'row', padding: 10, paddingTop: 0 }}>
-            <Image source={{ uri: profileImage }} style={styles.profileImage} />
+            {
+              profileImage != null ?
+                <Image source={{ uri: profileImage }} style={styles.profileImage} />
+                :
+                <Image source={require("../../asset/local/Blank.png")} style={[styles.profileImage]} />
+            }
             <TextInput style={styles.statusField} value={status} onChangeText={(text) => { setStatus(text) }} placeholder="What's on your mind?" multiline={true} />
           </View>
           <View style={{ display: 'flex', flexDirection: 'row' }}>
@@ -202,7 +207,7 @@ const Dashboard = ({ navigation }) => {
             <TouchableOpacity style={{ flex: 1 }}>
               <Ionicons name="send-outline" size={25} color="blue" style={{ alignSelf: 'center', marginTop: 'auto', marginBottom: 'auto' }} />
             </TouchableOpacity>
-            <TouchableOpacity style={{ flex: 1 }}>
+            <TouchableOpacity style={{ flex: 1 }} onPress={getGalleryImage}>
               <Ionicons name="image-outline" size={25} color="red" style={{ alignSelf: 'center', marginTop: 'auto', marginBottom: 'auto' }} />
             </TouchableOpacity>
             {!loading ?
@@ -218,7 +223,7 @@ const Dashboard = ({ navigation }) => {
       )
     } else {
       return (
-        <Item uid={item.uid} id={item.id} fullName={item.fullName} date={item.date} username={item.username} displayName={item.displayName} description={item.description} profileImage={item.profileImage} />
+        <Item feedImage={item.feedImage} uid={item.uid} id={item.id} fullName={item.fullName} date={item.date} username={item.username} displayName={item.displayName} description={item.description} profileImage={item.profileImage} />
       )
     }
 
@@ -226,28 +231,7 @@ const Dashboard = ({ navigation }) => {
 
 
   return (
-    <View style={{ backgroundColor: 'white', flex: 1, paddingRight: 5 }}>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          Alert.alert("Modal has been closed.");
-          setModalVisible(!modalVisible);
-        }}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-
-            <Text style={styles.modalText}>Complete Your Profile To Continue</Text>
-            <Text>Enter Your UserName:</Text>
-            <TextInput style={styles.textInputStyle} value={userName} onChangeText={(text) => setUserName(text)} placeholder="Enter Username" />
-            <TouchableOpacity style={styles.submitBtn}>
-              <Text style={{ color: '#fff', textAlign: 'center' }} onPress={checkIfAllowed}>Submit</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+    <View style={{ backgroundColor: 'white', flex: 1, paddingRight: 0 }}>
       <StatusBar />
       <View style={{ padding: 20, paddingTop: 15 }}>
         <Text style={styles.title}>
@@ -256,7 +240,7 @@ const Dashboard = ({ navigation }) => {
       </View>
       <ActivityIndicator animating={downloading} size="large" color="#000000" style={{ position: 'absolute', top: '50%', alignSelf: 'center' }} />
 
-      <SafeAreaView style={{ paddingBottom: 50 }}>
+      <SafeAreaView style={{ paddingBottom: 70 }}>
 
         <FlatList
           data={DATA}
@@ -276,10 +260,9 @@ const Dashboard = ({ navigation }) => {
 }
 const styles = StyleSheet.create({
   item: {
-    padding: 20,
-    paddingVertical: 10,
     display: 'flex',
-    flexDirection: 'row'
+    flexDirection: 'row',
+    marginBottom: 20
   },
   title: {
     fontSize: 26,
@@ -299,6 +282,15 @@ const styles = StyleSheet.create({
   {
     width: 60,
     height: 60,
+    margin: 10,
+    borderRadius: 50,
+    resizeMode: 'contain'
+
+  },
+  profileImage1:
+  {
+    width: 40,
+    height: 0,
     margin: 10,
     borderRadius: 50
   },
@@ -369,7 +361,8 @@ const styles = StyleSheet.create({
   feedImage: {
     width: 50,
     height: 50,
-    borderRadius: 40
+    borderRadius: 40,
+    resizeMode: 'contain'
   },
   postButtons: {
     margin: 5,

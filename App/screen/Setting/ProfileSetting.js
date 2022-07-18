@@ -16,7 +16,7 @@ const Settings = ({ navigation }) => {
         try {
             const value = await AsyncStorage.getItem('@fullname')
             if (value !== null) {
-                setDisplayName(value)
+                setUserName(value)
 
             }
         } catch (e) {
@@ -56,9 +56,7 @@ const Settings = ({ navigation }) => {
     }
     const changeUsername = () => {
         updateProfile(auth.currentUser, {
-            displayName: userName,
-
-
+            displayName: displayName,
         }).then(() => {
         })
         createNewDB(auth.currentUser.uid)
@@ -68,15 +66,15 @@ const Settings = ({ navigation }) => {
         const querySnapshot = await getDocs(q1)
         querySnapshot.forEach(async (doc1) => {
             await updateDoc(doc(db, 'Posts', doc1.id), {
-                fullName: userName,
-                displayName: displayName
+                displayName: displayName,
+                fullName: userName
             })
         })
     }
     const createNewDB = async (uid) => {
         await updateDoc(doc(db, "User", uid), {
-            username: userName,
-            fullname: displayName
+            username: displayName,
+            fullName: userName
         });
         storeDisplayName(displayName)
         correctInfo()
@@ -95,6 +93,7 @@ const Settings = ({ navigation }) => {
                 <Loading />
                 : <></>}
             <Pressable onPress={() => navigation.navigate('CameraS')}>
+                {auth.currentUser.photoURL!=null?
                 <Image source={{ uri: profileImage }} style={{
                     resizeMode: 'cover',
                     alignSelf: 'center',
@@ -102,17 +101,26 @@ const Settings = ({ navigation }) => {
                     height: 200,
                     borderRadius: 100
                 }} />
+                :
+                <Image source={require('../../asset/local/Blank.png')} style={{
+                    resizeMode: 'cover',
+                    alignSelf: 'center',
+                    width: 200,
+                    height: 200,
+                    borderRadius: 100
+                }} />
+                }
                 <View style={{ position: 'relative', bottom: 50, alignSelf: 'center', backgroundColor: '#fff', borderRadius: 50 }}>
                     <Ionicons name="aperture-outline" size={30} color="black" style={{ padding: 5 }} />
                 </View>
             </Pressable>
             <View style={{ flexDirection: 'column', padding: 10 }}>
                 <Text style={{ marginBottom: 10, marginLeft: 10 }}>Username</Text>
-                <TextInput value={userName} placeholder='Enter Your Username' style={styles.usernameInput} onChangeText={(text) => setUserName(text)} />
+                <TextInput value={displayName} placeholder='Enter Your Full Name' style={styles.usernameInput} onChangeText={(text) => setDisplayName(text)} />
             </View>
             <View style={{ flexDirection: 'column', padding: 10 }}>
-                <Text style={{ marginBottom: 10, marginLeft: 10 }}>FullName</Text>
-                <TextInput value={displayName} placeholder='Enter Your Name' style={styles.usernameInput} onChangeText={(text) => setDisplayName(text)} />
+                <Text style={{ marginBottom: 10, marginLeft: 10 }}>Full Name</Text>
+                <TextInput value={userName} placeholder='Enter Your Name' style={styles.usernameInput} onChangeText={(text) => setUserName(text)} />
             </View>
             <View style={{ padding: 10 }}>
                 <TouchableOpacity onPress={checkIfAllowed} style={{ width: '100%', alignSelf: 'center', borderColor: '#cdcdcd', borderWidth: 1, padding: 15, borderRadius: 10, backgroundColor: '#018B3D' }}>

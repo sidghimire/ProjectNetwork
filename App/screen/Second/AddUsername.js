@@ -2,34 +2,50 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-nativ
 import React, { useState } from 'react'
 import { getAuth ,updateProfile} from 'firebase/auth'
 import { getFirestore, doc, updateDoc } from 'firebase/firestore/lite'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const AddUsername = ({navigation}) => {
     const auth = getAuth()
     const db = getFirestore()
     const [username, setUsername] = useState(auth.currentUser.displayName)
-    const createNewDB = async (uid) => {
-        await updateDoc(doc(db, "User", uid), {
-            username: username,
-        });
-        navigation.navigate("DashboardBottom")
+    const [fullName, setFullName]=useState("")
+    const storeDisplayName = async (value) => {
+        try {
+            await AsyncStorage.setItem('@fullname', value)
+        } catch (e) {
+            // saving error
+        }
     }
+    const createNewDB = async () => {
+        await updateDoc(doc(db, "User", auth.currentUser.uid), {
+            username: username,
+            fullName:fullName,
+
+        });
+        storeDisplayName(fullName)
+    }
+
     const changeUsername = () => {
         updateProfile(auth.currentUser, {
-            displayName: username
-
+            displayName: username,
         })
-        createNewDB(auth.currentUser.uid)
+        createNewDB()
+
     }
     const checkIfAllowed = () => {
-        alert(auth.currentUser.displayName)
-        if (auth.currentUser.displayName != username || username == "" || username==null) {
-            changeUsername();
+        if (auth.currentUser.displayName == null ) {
+            changeUsername()
         }
+
+        navigation.navigate("DashboardBottom")
+
     }
     return (
         <View style={styles.centeredView}>
             <View style={styles.modalView}>
-                <Text style={{ fontWeight: "600", fontSize: 16, margin: 20 }}>Enter Your UserName:</Text>
+                <Text style={{ fontWeight: "600", fontSize: 16, margin: 20 }}>Enter Your Information:</Text>
                 <TextInput style={styles.textInputStyle} value={username} onChangeText={(text) => setUsername(text)} placeholder="Enter Username" />
+                <TextInput style={[styles.textInputStyle,{marginTop:30}]} value={fullName} onChangeText={(text) => setFullName(text)} placeholder="Enter FullName" />
                 <TouchableOpacity style={styles.submitBtn}>
                     <Text style={{ color: '#fff', textAlign: 'center' }} onPress={checkIfAllowed}>Submit</Text>
                 </TouchableOpacity>

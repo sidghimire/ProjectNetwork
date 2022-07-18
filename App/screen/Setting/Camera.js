@@ -2,7 +2,7 @@ import { View, Text, ActivityIndicator, TouchableOpacity, Image } from 'react-na
 import React, { useEffect, useRef, useState } from 'react'
 import { Camera, useCameraDevices } from 'react-native-vision-camera'
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { tapGestureHandlerProps } from 'react-native-gesture-handler/lib/typescript/handlers/TapGestureHandler';
+import { launchImageLibrary } from 'react-native-image-picker';
 
 
 const CameraApp = ({ navigation }) => {
@@ -14,6 +14,10 @@ const CameraApp = ({ navigation }) => {
       const requestMicrophonePermission = await Camera.requestMicrophonePermission()
 
     }
+  }
+  const getGalleryImage=async()=>{
+    const result=await launchImageLibrary();
+    navigation.navigate('CameraCrop', { uri: result.assets[0].uri})
   }
   let cameraRef = useRef(null);
   const [clicked, setClicked] = useState(false)
@@ -48,12 +52,12 @@ const CameraApp = ({ navigation }) => {
               ref={cameraRef}
               style={{ flex: 1 }}
               device={device}
-              isActive={!clicked}
+              isActive={true}
               fps={60}
               photo={true}
               enableZoomGesture={true}
               focusable={true}
-              
+
             />
             <TouchableOpacity onPress={takeSnapshot} style={{ position: 'absolute', bottom: 50, alignSelf: 'center', backgroundColor: '#fff', borderRadius: 50, width: 55 }}>
               <Ionicons name="aperture-outline" size={50} color="black" style={{ padding: 5, alignSelf: 'center', marginLeft: 'auto', marginRight: 'auto' }} />
@@ -63,6 +67,9 @@ const CameraApp = ({ navigation }) => {
             </TouchableOpacity>
             <TouchableOpacity onPress={() => { setBack(!back) }} style={{ position: 'absolute', top: 20, right: 20, alignSelf: 'flex-start', backgroundColor: '#fff', borderRadius: 50, }}>
               <Ionicons name="shuffle-outline" size={25} color="black" style={{ padding: 5, alignSelf: 'center', marginLeft: 'auto', marginRight: 'auto' }} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={getGalleryImage} style={{ position: 'absolute', bottom: 20, left: 20, alignSelf: 'flex-start', backgroundColor: '#fff', borderRadius: 50, }}>
+              <Ionicons name="image-outline" size={25} color="black" style={{ padding: 10, alignSelf: 'center', marginLeft: 'auto', marginRight: 'auto' }} />
             </TouchableOpacity>
             {flash ?
               <TouchableOpacity onPress={() => { setFlash(!flash) }} style={{ position: 'absolute', top: 70, right: 20, alignSelf: 'flex-start', backgroundColor: '#fff', borderRadius: 50, }}>
@@ -79,7 +86,7 @@ const CameraApp = ({ navigation }) => {
             <TouchableOpacity onPress={() => { setClicked(false) }} style={{ position: 'absolute', top: 20, left: 20, alignSelf: 'flex-start', backgroundColor: '#fff', borderRadius: 50, }}>
               <Ionicons name="arrow-back-outline" size={25} color="black" style={{ padding: 5, alignSelf: 'center', marginLeft: 'auto', marginRight: 'auto' }} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={()=>navigation.navigate('CameraCrop',{uri:"file://" + snapshot})} style={{ backgroundColor: '#007BF7', position: 'absolute', bottom: 20, right: 20, alignSelf: 'flex-start', borderRadius: 50, display: 'flex', flexDirection: 'row', padding: 10, width: 150 }}>
+            <TouchableOpacity onPress={() => navigation.navigate('CameraCrop', { uri: "file://" + snapshot })} style={{ backgroundColor: '#007BF7', position: 'absolute', bottom: 20, right: 20, alignSelf: 'flex-start', borderRadius: 50, display: 'flex', flexDirection: 'row', padding: 10, width: 150 }}>
               <Text style={{ fontSize: 20, marginLeft: 20, marginBottom: 'auto', marginTop: 'auto', color: 'white', fontWeight: '600' }}>
                 Next
               </Text>
