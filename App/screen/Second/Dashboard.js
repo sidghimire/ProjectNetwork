@@ -12,6 +12,7 @@ const wait = (timeout) => {
 
 const Dashboard = ({ navigation }) => {
   const [refreshing, setRefreshing] = React.useState(false);
+  const [loading, setLoading] = useState(false)
 
   const onRefresh = React.useCallback(() => {
 
@@ -44,6 +45,7 @@ const Dashboard = ({ navigation }) => {
     }
   }
   const addStatus = async () => {
+    setLoading(true)
     getFullName()
     await addDoc(collection(db, "Posts"), {
       status: status,
@@ -58,6 +60,7 @@ const Dashboard = ({ navigation }) => {
     });
     setStatus("")
     onRefresh()
+    setLoading(false)
 
   }
   const onUpload = () => {
@@ -202,9 +205,14 @@ const Dashboard = ({ navigation }) => {
             <TouchableOpacity style={{ flex: 1 }}>
               <Ionicons name="image-outline" size={25} color="red" style={{ alignSelf: 'center', marginTop: 'auto', marginBottom: 'auto' }} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={onUpload} style={[styles.postButton, { flex: 3, backgroundColor: "#2871CC" }]}>
-              <Text style={{ color: '#fff', textAlign: 'center' }}>Post</Text>
-            </TouchableOpacity>
+            {!loading ?
+              <TouchableOpacity onPress={onUpload} style={[styles.postButton, { flex: 3, backgroundColor: "#2871CC" }]}>
+                <Text style={{ color: '#fff', textAlign: 'center' }}>Post</Text>
+              </TouchableOpacity>
+              :
+              <TouchableOpacity style={[styles.postButton, { flex: 3, backgroundColor: "#fff", borderColor: '#000', borderWidth: 1 }]}>
+                <ActivityIndicator color={"#000"} size={'small'} style={{ marginLeft: 'auto', marginRight: 'auto' }} />
+              </TouchableOpacity>}
           </View>
         </View>
       )
@@ -276,6 +284,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: "500",
+    color: '#000'
   },
   statusField: {
     borderColor: "#222222",

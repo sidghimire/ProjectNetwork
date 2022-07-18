@@ -1,5 +1,5 @@
-import { View, Text, Image, TouchableOpacity } from 'react-native'
-import React from 'react'
+import { View, Text, Image, TouchableOpacity, ActivityIndicator } from 'react-native'
+import React, { useState } from 'react'
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { doc, getDocs, query, where, getFirestore, updateDoc, collection } from "firebase/firestore/lite";
 import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject, } from "firebase/storage";
@@ -7,15 +7,18 @@ import { updateProfile, getAuth } from 'firebase/auth';
 
 
 const CameraFilter = ({ route, navigation }) => {
+  const [loading, setLoading] = useState(false)
+
   const { uri } = route.params
   const auth = getAuth()
   const storage = getStorage()
   const db = getFirestore()
 
   const uploadPhoto = async () => {
+    setLoading(true)
     const filename = uri.substring(uri.lastIndexOf('/') + 1);
     const storageRef = ref(storage, 'profileImages/' + filename)
-    
+
     const resizedImage = uri;
     const response = await fetch(resizedImage)
     const blob = await response.blob()
@@ -38,6 +41,7 @@ const CameraFilter = ({ route, navigation }) => {
           updateProfile(auth.currentUser, {
             photoURL: url
           })
+          setLoading(false)
           navigation.navigate('Profile')
         })
       })
@@ -60,6 +64,7 @@ const CameraFilter = ({ route, navigation }) => {
             updateProfile(auth.currentUser, {
               photoURL: url
             })
+            setLoading(false)
             navigation.navigate('Profile')
           })
         })
@@ -68,20 +73,30 @@ const CameraFilter = ({ route, navigation }) => {
 
     }
 
+
   }
+
   return (
     <View style={{ flex: 1 }}>
-      <TouchableOpacity onPress={() => { navigation.goBack() }} style={{ position: 'absolute', top: 20, left: 20, alignSelf: 'flex-start', backgroundColor: '#fff', borderRadius: 50, zIndex: 100 }}>
-        <Ionicons name="arrow-back-outline" size={25} color="black" style={{ padding: 5, alignSelf: 'center', marginLeft: 'auto', marginRight: 'auto' }} />
-      </TouchableOpacity>
+      {!loading ?
+        <TouchableOpacity onPress={() => { navigation.goBack() }} style={{ position: 'absolute', top: 20, left: 20, alignSelf: 'flex-start', backgroundColor: '#fff', borderRadius: 50, zIndex: 100 }}>
+          <Ionicons name="arrow-back-outline" size={25} color="black" style={{ padding: 5, alignSelf: 'center', marginLeft: 'auto', marginRight: 'auto' }} />
+        </TouchableOpacity>
+        : <></>}
       <Image source={{ uri: uri }} style={{ flex: 1 }} />
       <View style={{ position: 'absolute', bottom: 0, padding: 20, width: '100%' }}>
-        <TouchableOpacity onPress={uploadPhoto} style={{ backgroundColor: '#007BF7', width: '100%', borderRadius: 50, display: 'flex', flexDirection: 'row', padding: 10, alignSelf: 'center' }}>
-          <Text style={{ fontSize: 20, marginLeft: 20, marginBottom: 'auto', marginTop: 'auto', color: 'white', fontWeight: '600', marginLeft: 'auto' }}>
-            Change Profile
-          </Text>
-          <Ionicons name="caret-up-outline" size={25} color="white" style={{ padding: 5, alignSelf: 'center', marginLeft: 'auto' }} />
-        </TouchableOpacity>
+        {!loading ?
+          <TouchableOpacity onPress={uploadPhoto} style={{ backgroundColor: '#007BF7', width: '100%', borderRadius: 50, display: 'flex', flexDirection: 'row', padding: 10, alignSelf: 'center' }}>
+            <Text style={{ fontSize: 20, marginLeft: 20, marginBottom: 'auto', marginTop: 'auto', color: 'white', fontWeight: '600', marginLeft: 'auto' }}>
+              Change Profile
+            </Text>
+            <Ionicons name="caret-up-outline" size={25} color="white" style={{ padding: 5, alignSelf: 'center', marginLeft: 'auto' }} />
+          </TouchableOpacity>
+          :
+          <TouchableOpacity style={{ backgroundColor: '#fff', width: '100%', borderRadius: 50, display: 'flex', flexDirection: 'row', padding: 10, alignSelf: 'center' }}>
+            <ActivityIndicator color={"#000"} size={'large'} style={{ marginLeft: 'auto', marginRight: 'auto' }} />
+          </TouchableOpacity>
+        }
       </View>
     </View>
   )
