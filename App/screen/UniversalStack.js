@@ -8,6 +8,7 @@ import AddUsername from './Second/AddUsername'
 import AddImageFeed from './Second/AddImageFeed'
 import PostSubmit from './Second/PostSubmit'
 import { getAuth } from 'firebase/auth'
+import BasicCamera from './Second/BasicCamera'
 const Stack = createNativeStackNavigator();
 
 const ChooseLoginNavigator = ({ navigation }) => {    
@@ -24,6 +25,8 @@ const ChooseLoginNavigator = ({ navigation }) => {
             <Stack.Screen name="SettingNavigator" component={SettingNavigator} options={{ headerShown: false }} />
             <Stack.Screen name="AddImageFeed" component={AddImageFeed} options={{ headerShown: false }} />
             <Stack.Screen name="PostSubmit" component={PostSubmit} options={{ headerShown: false }} />
+            <Stack.Screen name="BasicCamera" component={BasicCamera} options={{ headerShown: false }} />
+            
 
         </Stack.Navigator>
     );

@@ -71,9 +71,9 @@ const Dashboard = ({ navigation }) => {
                     </View>
                 </View>
                 <View style={{ flex: 1, flexDirection: 'column' }}>
-                    <View style={{ flex: 1, padding: 15, paddingHorizontal: 25, backgroundColor: '#000', borderColor: '#000', borderWidth: 1, borderRadius: 15, alignSelf: 'center', marginHorizontal: 10 }}>
+                    <TouchableOpacity onPress={()=>navigation.navigate("BasicCamera")} style={{ flex: 1, padding: 15, paddingHorizontal: 25, backgroundColor: '#000', borderColor: '#000', borderWidth: 1, borderRadius: 15, alignSelf: 'center', marginHorizontal: 10 }}>
                         <Ionicons name="aperture-outline" size={40} color="white" style={{ alignSelf: 'center', marginTop: 'auto', marginBottom: 'auto' }} />
-                    </View>
+                    </TouchableOpacity>
 
                 </View>
 
